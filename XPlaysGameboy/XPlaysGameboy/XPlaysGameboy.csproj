@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PInvoke">
+      <HintPath>..\packages\pinvoke.PInvoke.1.0.9\lib\net45\PInvoke.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -55,6 +58,7 @@
     <Content Include="Resources\Emulator\bgb.exe" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\Emulator\bgb.ini" />
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using PInvoke;
 using XPlaysGameboy.Properties;
 
 namespace XPlaysGameboy
@@ -37,7 +38,11 @@ namespace XPlaysGameboy
                     await Task.Delay(100);
                 }
 
-                var gameboyHandle = process.MainWindowHandle;
+                var gameboyHandle = process.MainWindowHandle; 
+
+                var style = (long)NativeMethods.GetWindowLong(process.MainWindowHandle, NativeMethods.WindowLongFlags.GWL_STYLE);
+                style &= ~((uint)NativeMethods.SetWindowLongFlags.WS_CAPTION | (uint)NativeMethods.SetWindowLongFlags.WS_THICKFRAME | (uint)NativeMethods.SetWindowLongFlags.WS_MINIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_MAXIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_SYSMENU);
+                NativeMethods.SetWindowLong(gameboyHandle, NativeMethods.WindowLongFlags.GWL_STYLE, (NativeMethods.SetWindowLongFlags)style);
 
                 var projectionLocation = projectTo.PointToScreen(new Point(0, 0));
                 var projectionSize = new Size(projectTo.ActualWidth, projectTo.ActualHeight);
