@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XPlaysGameboy", "XPlaysGameboy\XPlaysGameboy.csproj", "{874FF51C-EA86-4F6B-AC55-BCE29782EFFE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XPlaysGameboy.Samples.FishPlaysPokemon", "XPlaysGameboy.Samples.FishPlaysPokemon\XPlaysGameboy.Samples.FishPlaysPokemon.csproj", "{C8529F5C-45A0-4BB3-86D3-3B085A76751E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{874FF51C-EA86-4F6B-AC55-BCE29782EFFE} = {874FF51C-EA86-4F6B-AC55-BCE29782EFFE}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
