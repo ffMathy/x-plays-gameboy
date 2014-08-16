@@ -51,6 +51,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameboyEngine.cs" />
+    <Compile Include="Buttons\ButtonBase.cs" />
+    <Compile Include="Buttons\ButtonA.xaml.cs">
+      <DependentUpon>ButtonA.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ButtonB.xaml.cs">
+      <DependentUpon>ButtonB.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ButtonDown.xaml.cs">
+      <DependentUpon>ButtonDown.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ButtonLeft.xaml.cs">
+      <DependentUpon>ButtonLeft.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ButtonRight.xaml.cs">
+      <DependentUpon>ButtonRight.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ButtonSelect.xaml.cs">
+      <DependentUpon>ButtonSelect.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ButtonStart.xaml.cs">
+      <DependentUpon>ButtonStart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Buttons\ButtonUp.xaml.cs">
+      <DependentUpon>ButtonUp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -75,6 +100,40 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Buttons\ButtonA.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ButtonB.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ButtonDown.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ButtonLeft.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ButtonRight.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ButtonSelect.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ButtonStart.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Buttons\ButtonUp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

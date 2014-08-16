@@ -1,8 +1,26 @@
 ﻿<Window x:Class="XPlaysGameboy.Samples.FishPlaysPokemon.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="500" Width="1000">
     <Grid>
-        <Grid Margin="50" Name="RenderGrid" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Name="GameboyArea" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        <Grid Name="MotionGrid" Grid.Column="1" ShowGridLines="True">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="3" Name="CameraFeed" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill" />
+            <ProgressBar Name="ProgressBar" Background="Transparent" Foreground="#55FFFFFF" Visibility="Visible" />
+        </Grid>
     </Grid>
 </Window>
