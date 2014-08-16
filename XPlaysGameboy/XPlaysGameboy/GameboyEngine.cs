@@ -11,7 +11,7 @@ using XPlaysGameboy.Properties;
 
 namespace XPlaysGameboy
 {
-    class GameboyEngine
+    public class GameboyEngine
     {
 
         public GameboyEngine()
