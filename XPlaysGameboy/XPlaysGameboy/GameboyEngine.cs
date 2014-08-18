@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -16,13 +18,21 @@ namespace XPlaysGameboy
 {
     public class GameboyEngine
     {
+        private static GameboyEngine _engine;
 
-        public GameboyEngine()
+        public static GameboyEngine Instance
+        {
+            get { return _engine ?? (_engine = new GameboyEngine()); }
+        }
+
+        private IntPtr _gameboyWindowHandle;
+
+        private GameboyEngine()
         {
 
         }
 
-        public async void Start(string romLocation, FrameworkElement projectTo)
+        public async Task Start(string romLocation, FrameworkElement projectTo)
         {
             Window projectWindow = null;
 
@@ -73,11 +83,12 @@ namespace XPlaysGameboy
             await Task.Delay(1000);
 
             var gameboyWindowHandle = NativeMethods.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Tfgb", null);
+            _gameboyWindowHandle = gameboyWindowHandle;
 
-            var style = (long)NativeMethods.GetWindowLong(process.MainWindowHandle, NativeMethods.WindowLongFlags.GWL_STYLE);
+            var style = (long)NativeMethods.GetWindowLong(process.MainWindowHandle, NativeMethods.WindowLongIndexFlags.GWL_STYLE);
             style &= ~((uint)NativeMethods.SetWindowLongFlags.WS_CAPTION | (uint)NativeMethods.SetWindowLongFlags.WS_THICKFRAME | (uint)NativeMethods.SetWindowLongFlags.WS_MINIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_MAXIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_SYSMENU);
             style |= (uint)NativeMethods.SetWindowLongFlags.WS_EX_TOPMOST;
-            NativeMethods.SetWindowLong(gameboyWindowHandle, NativeMethods.WindowLongFlags.GWL_STYLE, (NativeMethods.SetWindowLongFlags)style);
+            NativeMethods.SetWindowLong(gameboyWindowHandle, NativeMethods.WindowLongIndexFlags.GWL_STYLE, (NativeMethods.SetWindowLongFlags)style);
 
             var resizeProjection = (Action)delegate()
             {
@@ -109,52 +120,43 @@ namespace XPlaysGameboy
 
         }
 
+        private async Task SendKey(int keyCode)
+        {
+            NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);
+            await Task.Delay(50);
+            NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(keyCode), IntPtr.Zero);
+
+            await Task.Delay(100);
+        }
+
         public async void TapA()
         {
-            await Task.Run(delegate()
-            {
-                SendKeys.SendWait("B");
-            });
+            await SendKey(0x53);
         }
 
         public async void TapB()
         {
-            await Task.Run(delegate()
-            {
-                SendKeys.SendWait("A");
-            });
+            await SendKey(0x41);
         }
 
         public async void TapSelect()
         {
-            await Task.Run(delegate()
-            {
-                SendKeys.SendWait("+");
-            });
+            await SendKey(0x10);
         }
 
         public async void TapStart()
         {
-            await Task.Run(delegate()
-            {
-                SendKeys.SendWait("{ENTER}");
-            });
+            await SendKey(0xD);
         }
 
         public async void SaveState()
         {
-            await Task.Run(delegate()
-            {
-                SendKeys.SendWait("{F2}");
-            });
+            await SendKey(0x71);
         }
 
         public async void LoadState()
         {
-            await Task.Run(delegate()
-            {
-                SendKeys.SendWait("{F4}");
-            });
+            await SendKey(0x72);
         }
 
     }

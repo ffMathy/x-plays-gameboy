@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using AForge.Video.DirectShow;
 using AForge.Vision.Motion;
@@ -26,6 +27,9 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
 
         private readonly ButtonBase[,] _fields;
 
+        private int currentColumn;
+        private int currentRow;
+
         //moving object size in pixels.
         private const int MinimumMovingObjectSize = 10;
 
@@ -33,7 +37,7 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
         {
             InitializeComponent();
 
-            _engine = new GameboyEngine();
+            _engine = GameboyEngine.Instance;
 
             _processor = new BlobCountingObjectsProcessing(MinimumMovingObjectSize, MinimumMovingObjectSize, Color.Black);
             _detector = new MotionDetector(new TwoFramesDifferenceDetector(), _processor);
@@ -43,6 +47,31 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
             RandomizeFields();
 
             Loaded += MainWindow_Loaded;
+        }
+
+        private async void StartRandomizeLoop()
+        {
+            var offset = 0;
+            while (true)
+            {
+                await Task.Delay(100);
+
+                offset ++;
+                if (offset > 10)
+                {
+                    offset = 0;
+                    _fields[currentColumn, currentRow].Push();
+                }
+
+                //now fill up the progress bar a little bit.
+                var delta = Math.Min(1, ProgressBar.Maximum - ProgressBar.Value);
+                ProgressBar.Value += delta;
+                if (ProgressBar.Value >= ProgressBar.Maximum)
+                {
+                    ProgressBar.Value = 0;
+                    RandomizeFields();
+                }
+            }
         }
 
         void RandomizeFields()
@@ -72,7 +101,7 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
             {
                 for (var y = 0; y < _fields.GetLength(1); y++)
                 {
-                    var lowestAmountIndexes = buttonTypeCounts.Where(c => c == buttonTypeCounts.Min()).ToArray();
+                    var lowestAmountIndexes = buttonTypeCounts.Select((c, i) => Array.IndexOf(buttonTypeCounts, buttonTypeCounts.Min(), i)).Where(c => c != -1).ToArray();
                     var offsetToGenerate = random.Next(0, lowestAmountIndexes.Length - 1);
 
                     var index = lowestAmountIndexes[offsetToGenerate];
@@ -90,7 +119,7 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
             }
         }
 
-        void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
             //launch camera stuff.
@@ -112,7 +141,10 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
             var romPath = Path.Combine(Environment.CurrentDirectory, "PokemonRed.gb");
             File.WriteAllBytes(romPath, FileResources.PokemonRed);
 
-            _engine.Start(romPath, GameboyArea);
+            await _engine.Start(romPath, GameboyArea);
+
+            //start randomize loop.
+            StartRandomizeLoop();
         }
 
         void captureDevice_NewFrame(object sender, AForge.Video.NewFrameEventArgs eventArgs)
@@ -165,14 +197,9 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
                             Grid.SetColumn(ProgressBar, targetColumn);
                             Grid.SetRow(ProgressBar, targetRow);
 
-                            ProgressBar.Value = 0;
-                        }
+                            this.currentColumn = targetColumn;
+                            this.currentRow = targetRow;
 
-                        //now fill up the progress bar a little bit.
-                        var delta = Math.Min(3, ProgressBar.Maximum - ProgressBar.Value);
-                        ProgressBar.Value += delta;
-                        if (ProgressBar.Value >= ProgressBar.Maximum)
-                        {
                             ProgressBar.Value = 0;
                         }
 

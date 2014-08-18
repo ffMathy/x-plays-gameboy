@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:icons="clr-namespace:XPlaysGameboy.Icons"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             Width="76" Height="76">
     <Grid>
         <Ellipse Width="76" Height="76" Fill="#FFFFFF" />
         <TextBlock FontFamily="Segoe UI Light" FontWeight="UltraLight" Text="B" FontSize="40" Foreground="Black" VerticalAlignment="Center" HorizontalAlignment="Center" />
