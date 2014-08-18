@@ -39,15 +39,16 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             _gameboy = GameboyEngine.Instance;
             _twitchChatEngine = TwitchChatEngine.Instance;
 
+            //initialize chat, but only if an API key and username is available. you'll need to generate these yourselves.
             var dataRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "XPlaysPokemon");
-            var twitchApiKeyPath = Path.Combine(dataRoot, "Twitch.oauth");
+                "XPlaysGameboy");
+            var twitchOAuthTokenPath = Path.Combine(dataRoot, "Twitch.oauth");
             var twitchUsernamePath = Path.Combine(dataRoot, "Twitch.username");
-            if (File.Exists(twitchApiKeyPath) && File.Exists(twitchUsernamePath))
+            if (File.Exists(twitchOAuthTokenPath) && File.Exists(twitchUsernamePath))
             {
-                var twitchApiKey = File.ReadAllText(twitchApiKeyPath);
+                var twitchOAuthToken = File.ReadAllText(twitchOAuthTokenPath);
                 var twitchUsername = File.ReadAllText(twitchUsernamePath);
-                _twitchChatEngine.Start(twitchUsername, twitchApiKey);
+                _twitchChatEngine.Start(twitchUsername, twitchOAuthToken);
             }
 
             Loaded += MainWindow_Loaded;
