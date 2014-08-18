@@ -25,13 +25,30 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly GameboyEngine _engine;
+        private readonly GameboyEngine _gameboy;
+        private readonly TwitchChatEngine _twitchChatEngine;
+
+        private int slowmotionCountdown;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            _engine = GameboyEngine.Instance;
+            slowmotionCountdown = 300;
+
+            _gameboy = GameboyEngine.Instance;
+            _twitchChatEngine = TwitchChatEngine.Instance;
+
+            var dataRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "XPlaysPokemon");
+            var twitchApiKeyPath = Path.Combine(dataRoot, "Twitch.oauth");
+            var twitchUsernamePath = Path.Combine(dataRoot, "Twitch.username");
+            if (File.Exists(twitchApiKeyPath) && File.Exists(twitchUsernamePath))
+            {
+                var twitchApiKey = File.ReadAllText(twitchApiKeyPath);
+                var twitchUsername = File.ReadAllText(twitchUsernamePath);
+                _twitchChatEngine.Start(twitchUsername, twitchApiKey);
+            }
 
             Loaded += MainWindow_Loaded;
         }
@@ -46,21 +63,37 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             }
 
             //start the emulator with 5X normal speed.
-            await _engine.Start(romPath, GameboyArea, 10);
+            await _gameboy.Start(romPath, GameboyArea, 10);
 
             await Task.Delay(5000);
 
             //now load the game.
-            _engine.TapStart();
+            _gameboy.TapStart();
 
             await Task.Delay(5000);
 
-            _engine.LoadState();
+            _gameboy.LoadState();
 
             await Task.Delay(5000);
 
             //now that the game is running, start simulating random keypresses.
             StartKeyPressLoop();
+            StartSlowMotionLoop();
+        }
+
+        private async void StartSlowMotionLoop()
+        {
+            while (true)
+            {
+                await Task.Delay(1000);
+
+                slowmotionCountdown -= 1;
+
+                if (slowmotionCountdown < -30)
+                {
+                    slowmotionCountdown = 300;
+                }
+            }
         }
 
         private async void StartKeyPressLoop()
@@ -74,7 +107,14 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             while (true)
             {
                 FormsApplication.DoEvents();
-                Thread.Sleep(Math.Max(100 - (int)(DateTime.UtcNow.Ticks - ticks), 1));
+
+                var delay = 100;
+                if (slowmotionCountdown < 0)
+                {
+                    //TODO: slowmotion.
+                }
+
+                Thread.Sleep(Math.Max(delay - (int)(DateTime.UtcNow.Ticks - ticks), 1));
 
                 ticks = DateTime.UtcNow.Ticks;
 
@@ -83,7 +123,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 //every 100th frame (10 seconds), save progress.
                 if (frame == 1000)
                 {
-                    _engine.SaveState();
+                    _gameboy.SaveState();
                     frame = 0;
                 }
 
@@ -92,32 +132,32 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 {
                     case 0:
                         commandName = "Right";
-                        _engine.TapRight();
+                        _gameboy.TapRight();
                         break;
                             
                     case 1:
                         commandName = "Left";
-                        _engine.TapLeft();
+                        _gameboy.TapLeft();
                         break;
 
                     case 2:
                         commandName = "Down";
-                        _engine.TapDown();
+                        _gameboy.TapDown();
                         break;
 
                     case 3:
                         commandName = "Up";
-                        _engine.TapUp();
+                        _gameboy.TapUp();
                         break;
 
                     case 4:
                         commandName = "A";
-                        _engine.TapA();
+                        _gameboy.TapA();
                         break;
 
                     case 5:
                         commandName = "B";
-                        _engine.TapB();
+                        _gameboy.TapB();
                         break;
 
                     default:

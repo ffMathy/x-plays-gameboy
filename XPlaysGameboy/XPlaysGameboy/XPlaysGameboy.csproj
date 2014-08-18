@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IrcDotNet">
+      <HintPath>..\packages\IrcDotNet.0.4.1\lib\net40\IrcDotNet.dll</HintPath>
+    </Reference>
     <Reference Include="PInvoke, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\pinvoke.PInvoke.1.0.15\lib\net45\PInvoke.dll</HintPath>
@@ -82,6 +85,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="TwitchChatEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Emulator\bgb.exe" />
@@ -95,9 +99,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interopability\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Page Include="Buttons\ButtonA.xaml">
       <SubType>Designer</SubType>
