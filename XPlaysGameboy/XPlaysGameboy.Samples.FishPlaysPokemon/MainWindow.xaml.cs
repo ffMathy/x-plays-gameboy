@@ -65,7 +65,7 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
 
                 if (offset%100 == 0)
                 {
-                    await _engine.SaveState();
+                    _engine.SaveState();
                 }
 
                 //reset offset once in a while.
@@ -155,8 +155,8 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
             await _engine.Start(romPath, GameboyArea);
 
             //now load the game.
-            await _engine.TapStart();
-            await _engine.LoadState();
+            _engine.TapStart();
+            _engine.LoadState();
 
             //start randomize loop.
             StartRandomizeLoop();
