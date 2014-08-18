@@ -150,7 +150,10 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
 
             //write the pokemon red ROM to the disk.
             var romPath = Path.Combine(Environment.CurrentDirectory, "PokemonRed.gb");
-            File.WriteAllBytes(romPath, FileResources.PokemonRed);
+            if (!File.Exists(romPath))
+            {
+                File.WriteAllBytes(romPath, FileResources.PokemonRed);
+            }
 
             await _engine.Start(romPath, GameboyArea);
 

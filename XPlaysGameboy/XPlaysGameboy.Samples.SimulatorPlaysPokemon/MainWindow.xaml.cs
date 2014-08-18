@@ -40,14 +40,24 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         {
             //write the pokemon red ROM to the disk.
             var romPath = Path.Combine(Environment.CurrentDirectory, "PokemonRed.gb");
-            File.WriteAllBytes(romPath, FileResources.PokemonRed);
+            if (!File.Exists(romPath))
+            {
+                File.WriteAllBytes(romPath, FileResources.PokemonRed);
+            }
 
             //start the emulator with 5X normal speed.
             await _engine.Start(romPath, GameboyArea, 10);
 
+            await Task.Delay(5000);
+
             //now load the game.
             _engine.TapStart();
+
+            await Task.Delay(5000);
+
             _engine.LoadState();
+
+            await Task.Delay(5000);
 
             //now that the game is running, start simulating random keypresses.
             StartKeyPressLoop();

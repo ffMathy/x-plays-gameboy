@@ -65,11 +65,17 @@ namespace XPlaysGameboy
             await Task.Delay(1000);
 
             var emulatorRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XPlaysGameboy", "Emulator");
-            Directory.CreateDirectory(emulatorRoot);
+            if (!Directory.Exists(emulatorRoot))
+            {
+                Directory.CreateDirectory(emulatorRoot);
+            }
 
             var emulatorFilePath = Path.Combine(emulatorRoot, "bgb.exe");
-            File.WriteAllBytes(emulatorFilePath, Resources.bgbexe);
-            File.WriteAllText(Path.Combine(emulatorRoot, "bgb.ini"), Resources.bgbini);
+            if (!File.Exists(emulatorFilePath))
+            {
+                File.WriteAllBytes(emulatorFilePath, Resources.bgbexe);
+                File.WriteAllText(Path.Combine(emulatorRoot, "bgb.ini"), Resources.bgbini);
+            }
 
             var information = new ProcessStartInfo(emulatorFilePath);
             information.Arguments = "\"" + romLocation + "\" " +
@@ -147,67 +153,67 @@ namespace XPlaysGameboy
 
         }
 
-        private void SendKey(int keyCode)
+        private void SendKey(int keyCode, int delayMultiplier = 1)
         {
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);
-            Thread.Sleep(5);
+            Thread.Sleep(5 * delayMultiplier);
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(keyCode), IntPtr.Zero);
 
         }
 
         public void TapRight()
         {
-             SendKey(0x27);
+            SendKey(0x27);
         }
 
         public void TapLeft()
         {
-             SendKey(0x25);
+            SendKey(0x25);
         }
 
         public void TapUp()
         {
-             SendKey(0x26);
+            SendKey(0x26);
         }
 
         public void TapDown()
         {
-             SendKey(0x28);
+            SendKey(0x28);
         }
 
         public void TapA()
         {
-             SendKey(0x53);
+            SendKey(0x53);
         }
 
         public void TapB()
         {
-             SendKey(0x41);
+            SendKey(0x41);
         }
 
         public void TapSelect()
         {
-             SendKey(0x10);
+            SendKey(0x10);
         }
 
         public void TapStart()
         {
-             SendKey(0xD);
+            SendKey(0xD);
         }
 
         public void SaveState()
         {
-             SendKey(0x71);
+            SendKey(0x71, 10);
         }
 
         public void LoadState()
         {
-             SendKey(0x72);
+            SendKey(0x73, 10);
         }
 
         public void ToggleSpeedMode()
         {
-             SendKey(0x6B);
+            SendKey(0x6B, 10);
         }
 
     }
