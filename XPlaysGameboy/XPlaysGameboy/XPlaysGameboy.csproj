@@ -32,7 +32,7 @@
   <ItemGroup>
     <Reference Include="PInvoke, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\pinvoke.PInvoke.1.0.13\lib\net45\PInvoke.dll</HintPath>
+      <HintPath>..\packages\pinvoke.PInvoke.1.0.15\lib\net45\PInvoke.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

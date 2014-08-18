@@ -57,12 +57,21 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
                 await Task.Delay(100);
 
                 offset ++;
-                if (offset >= 5)
+                if (offset % 5 == 0)
+                {
+                    //press the button if we've waited on this field for a half second
+                    await _fields[currentColumn, currentRow].Push();
+                }
+
+                if (offset%100 == 0)
+                {
+                    await _engine.SaveState();
+                }
+
+                //reset offset once in a while.
+                if (offset == 100)
                 {
                     offset = 0;
-
-                    //press the button if we've waited on this field for a half second
-                    _fields[currentColumn, currentRow].Push();
                 }
 
                 //now fill up the progress bar a little bit.
@@ -98,18 +107,18 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
             };
             var buttonTypeCounts = new int[buttonTypes.Length];
 
-            var random = new Random();
+            var random = new Random((int)DateTime.UtcNow.Ticks);
             for (var x = 0; x < _fields.GetLength(0); x++)
             {
                 for (var y = 0; y < _fields.GetLength(1); y++)
                 {
                     var lowestAmountIndexes = buttonTypeCounts.Select((c, i) => Array.IndexOf(buttonTypeCounts, buttonTypeCounts.Min(), i)).Where(c => c != -1).ToArray();
-                    var offsetToGenerate = random.Next(0, lowestAmountIndexes.Length - 1);
+                    var offsetToGenerate = Math.Min(random.Next(0, lowestAmountIndexes.Length), lowestAmountIndexes.Length - 1);
 
                     var index = lowestAmountIndexes[offsetToGenerate];
                     _fields[x, y] = (ButtonBase)Activator.CreateInstance(buttonTypes[index]);
 
-                    _fields[x, y].Opacity = 0.5;
+                    _fields[x, y].Opacity = 0.75;
 
                     buttonTypeCounts[index]++;
 
@@ -144,6 +153,10 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
             File.WriteAllBytes(romPath, FileResources.PokemonRed);
 
             await _engine.Start(romPath, GameboyArea);
+
+            //now load the game.
+            await _engine.TapStart();
+            await _engine.LoadState();
 
             //start randomize loop.
             StartRandomizeLoop();

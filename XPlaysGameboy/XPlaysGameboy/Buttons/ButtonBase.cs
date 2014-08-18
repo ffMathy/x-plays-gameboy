@@ -11,7 +11,7 @@ namespace XPlaysGameboy.Icons
     {
         public event Action ButtonPushed;
 
-        public virtual void Push()
+        public virtual async Task Push()
         {
             if (ButtonPushed != null)
             {

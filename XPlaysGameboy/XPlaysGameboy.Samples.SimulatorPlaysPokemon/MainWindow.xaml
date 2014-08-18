@@ -1,0 +1,19 @@
+﻿<Window x:Class="XPlaysGameboy.Samples.SimulatorPlaysPokemon.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="500" Width="600">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid Name="GameboyArea" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        <ItemsControl Width="200" Name="Log" Grid.Column="1" Margin="10,5">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" FontSize="20" Margin="10,5,10,5" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>

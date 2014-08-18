@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -87,10 +88,15 @@ namespace XPlaysGameboy
             var gameboyWindowHandle = NativeMethods.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Tfgb", null);
             _gameboyWindowHandle = gameboyWindowHandle;
 
+            NativeMethods.ShowWindow(gameboyWindowHandle, NativeMethods.WindowShowStyle.Hide);
+
             var style = (long)NativeMethods.GetWindowLong(process.MainWindowHandle, NativeMethods.WindowLongIndexFlags.GWL_STYLE);
-            style &= ~((uint)NativeMethods.SetWindowLongFlags.WS_CAPTION | (uint)NativeMethods.SetWindowLongFlags.WS_THICKFRAME | (uint)NativeMethods.SetWindowLongFlags.WS_MINIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_MAXIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_SYSMENU);
+            style &= ~((uint)NativeMethods.SetWindowLongFlags.WS_CAPTION | (uint)NativeMethods.SetWindowLongFlags.WS_THICKFRAME | (uint)NativeMethods.SetWindowLongFlags.WS_MINIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_MAXIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_SYSMENU | (uint)NativeMethods.SetWindowLongFlags.WS_EX_APPWINDOW | (uint)NativeMethods.SetWindowLongFlags.WS_EX_OVERLAPPEDWINDOW | (uint)NativeMethods.SetWindowLongFlags.WS_OVERLAPPED | (uint)NativeMethods.SetWindowLongFlags.WS_ICONIC | (uint)NativeMethods.SetWindowLongFlags.WS_BORDER | (uint)NativeMethods.SetWindowLongFlags.WS_DLGFRAME | (uint)NativeMethods.SetWindowLongFlags.WS_EX_CLIENTEDGE | (uint)NativeMethods.SetWindowLongFlags.WS_EX_COMPOSITED | (uint)NativeMethods.SetWindowLongFlags.WS_EX_DLGMODALFRAME | (uint)NativeMethods.SetWindowLongFlags.WS_MAXIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_MAXIMIZEBOX | (uint)NativeMethods.SetWindowLongFlags.WS_MINIMIZE | (uint)NativeMethods.SetWindowLongFlags.WS_MINIMIZEBOX | (uint)NativeMethods.SetWindowLongFlags.WS_POPUP | (uint)NativeMethods.SetWindowLongFlags.WS_SIZEBOX | (uint)NativeMethods.SetWindowLongFlags.WS_TILED);
             style |= (uint)NativeMethods.SetWindowLongFlags.WS_EX_TOPMOST;
+            style |= (uint)NativeMethods.SetWindowLongFlags.WS_EX_TOOLWINDOW;
             NativeMethods.SetWindowLong(gameboyWindowHandle, NativeMethods.WindowLongIndexFlags.GWL_STYLE, (NativeMethods.SetWindowLongFlags)style);
+
+            NativeMethods.ShowWindow(gameboyWindowHandle, NativeMethods.WindowShowStyle.Show);
 
             var resizeProjection = (Action)delegate()
             {
@@ -117,73 +123,92 @@ namespace XPlaysGameboy
             {
                 process.Kill();
             };
+            projectWindow.StateChanged += delegate
+            {
+                if (projectWindow.WindowState == WindowState.Minimized)
+                {
+                    NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.Hide);
+                }
+                else
+                {
+                    NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.ShowNoActivate);
+                }
+            };
+            projectWindow.Activated += delegate
+            {
+                NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.ShowNoActivate);
+            };
+            projectWindow.Deactivated += delegate
+            {
+                NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.Hide);
+            };
 
             resizeProjection();
 
         }
 
-        private async Task SendKey(int keyCode)
+        private void SendKey(int keyCode)
         {
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);
-            await Task.Delay(1);
+            Thread.Sleep(3);
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(keyCode), IntPtr.Zero);
+            Thread.Sleep(1);
 
-            await Task.Delay(10);
         }
 
-        public async void TapRight()
+        public void TapRight()
         {
-            await SendKey(0x27);
+             SendKey(0x27);
         }
 
-        public async void TapLeft()
+        public void TapLeft()
         {
-            await SendKey(0x25);
+             SendKey(0x25);
         }
 
-        public async void TapUp()
+        public void TapUp()
         {
-            await SendKey(0x26);
+             SendKey(0x26);
         }
 
-        public async void TapDown()
+        public void TapDown()
         {
-            await SendKey(0x28);
+             SendKey(0x28);
         }
 
-        public async void TapA()
+        public void TapA()
         {
-            await SendKey(0x53);
+             SendKey(0x53);
         }
 
-        public async void TapB()
+        public void TapB()
         {
-            await SendKey(0x41);
+             SendKey(0x41);
         }
 
-        public async void TapSelect()
+        public void TapSelect()
         {
-            await SendKey(0x10);
+             SendKey(0x10);
         }
 
-        public async void TapStart()
+        public void TapStart()
         {
-            await SendKey(0xD);
+             SendKey(0xD);
         }
 
-        public async void SaveState()
+        public void SaveState()
         {
-            await SendKey(0x71);
+             SendKey(0x71);
         }
 
-        public async void LoadState()
+        public void LoadState()
         {
-            await SendKey(0x72);
+             SendKey(0x72);
         }
 
-        public async void ToggleSpeedMode()
+        public void ToggleSpeedMode()
         {
-            await SendKey(0x6B);
+             SendKey(0x6B);
         }
 
     }

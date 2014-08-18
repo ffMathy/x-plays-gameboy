@@ -25,10 +25,10 @@ namespace XPlaysGameboy.Icons
             InitializeComponent();
         }
 
-        public override void Push()
+        public override async Task Push()
         {
             GameboyEngine.Instance.TapStart();
-            base.Push();
+            await base.Push();
         }
     }
 }
