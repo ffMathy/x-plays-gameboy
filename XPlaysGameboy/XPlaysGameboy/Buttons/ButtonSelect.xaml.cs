@@ -24,5 +24,11 @@ namespace XPlaysGameboy.Icons
         {
             InitializeComponent();
         }
+
+        public override void Push()
+        {
+            GameboyEngine.Instance.TapSelect();
+            base.Push();
+        }
     }
 }

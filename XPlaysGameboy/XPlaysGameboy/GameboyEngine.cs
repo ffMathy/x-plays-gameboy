@@ -123,10 +123,30 @@ namespace XPlaysGameboy
         private async Task SendKey(int keyCode)
         {
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);
-            await Task.Delay(50);
+            await Task.Delay(1);
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(keyCode), IntPtr.Zero);
 
-            await Task.Delay(100);
+            await Task.Delay(10);
+        }
+
+        public async void TapRight()
+        {
+            await SendKey(0x27);
+        }
+
+        public async void TapLeft()
+        {
+            await SendKey(0x25);
+        }
+
+        public async void TapUp()
+        {
+            await SendKey(0x26);
+        }
+
+        public async void TapDown()
+        {
+            await SendKey(0x28);
         }
 
         public async void TapA()
@@ -157,6 +177,11 @@ namespace XPlaysGameboy
         public async void LoadState()
         {
             await SendKey(0x72);
+        }
+
+        public async void ToggleSpeedMode()
+        {
+            await SendKey(0x6B);
         }
 
     }
