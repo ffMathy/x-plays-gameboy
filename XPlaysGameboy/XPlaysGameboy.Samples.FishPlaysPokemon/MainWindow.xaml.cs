@@ -57,9 +57,11 @@ namespace XPlaysGameboy.Samples.FishPlaysPokemon
                 await Task.Delay(100);
 
                 offset ++;
-                if (offset > 10)
+                if (offset >= 5)
                 {
                     offset = 0;
+
+                    //press the button if we've waited on this field for a half second
                     _fields[currentColumn, currentRow].Push();
                 }
 
