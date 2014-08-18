@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace XPlaysGameboy
 
         }
 
-        public async Task Start(string romLocation, FrameworkElement projectTo)
+        public async Task Start(string romLocation, FrameworkElement projectTo, double emulationSpeed = 1.0)
         {
             Window projectWindow = null;
 
@@ -70,7 +71,8 @@ namespace XPlaysGameboy
             File.WriteAllText(Path.Combine(emulatorRoot, "bgb.ini"), Resources.bgbini);
 
             var information = new ProcessStartInfo(emulatorFilePath);
-            information.Arguments = "\"" + romLocation + "\"";
+            information.Arguments = "\"" + romLocation + "\" " +
+                                    "-setting Speed=" + emulationSpeed.ToString(new CultureInfo("en-US")) + " ";
 
             var process = Process.Start(information);
 
