@@ -27,6 +27,8 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly string[] _powerUsers;
+
         private readonly GameboyEngine _gameboy;
         private readonly TwitchChatEngine _twitchChatEngine;
 
@@ -41,6 +43,16 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         public MainWindow()
         {
             InitializeComponent();
+
+            SizeToContent = SizeToContent.WidthAndHeight;
+            ResizeMode = ResizeMode.NoResize;
+            WindowStyle = WindowStyle.None;
+
+            Left = 0;
+            Top = 0;
+
+            //assign two power users who can use special chat commands.
+            _powerUsers = new[] {"ffMathy", "RandomnessPlaysPokemon"};
 
             _slowmotionCountdown = SpeedyTime;
             if (Debugger.IsAttached)
@@ -91,6 +103,23 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                                     RequestAuthor = username,
                                     CommandIndex = _lastCommandIndex
                                 };
+                            }
+                        }
+                        break;
+
+                        //allows power-users to reposition the window.
+                    case "REPOSITION":
+                        if (_powerUsers.Any(p => string.Equals(p, username, StringComparison.OrdinalIgnoreCase)) && split.Length > 2)
+                        {
+                            int x;
+                            int y;
+                            if (int.TryParse(split[1], out x) && int.TryParse(split[2], out y))
+                            {
+                                Dispatcher.Invoke(delegate()
+                                {
+                                    Left = x;
+                                    Top = y;
+                                });
                             }
                         }
                         break;
@@ -152,7 +181,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
             var lastTick = DateTime.UtcNow;
 
-            const int SmallDelay = 1;
+            const int SmallDelay = 3;
 
             var commandList = new LinkedList<string>();
             while (true)
@@ -186,7 +215,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 Action command;
 
                 string commandName;
-                _lastCommandIndex = _slowmotionRepeatRequest == null ? Math.Min(random.Next(0, 6), 5) : _slowmotionRepeatRequest.CommandIndex;
+                _lastCommandIndex = _slowmotionRepeatRequest == null ? Math.Min(random.Next(0, 7), 6) : _slowmotionRepeatRequest.CommandIndex;
                 switch (_lastCommandIndex)
                 {
                     case 0:
@@ -217,6 +246,15 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                     case 5:
                         commandName = "B";
                         command = _gameboy.TapB;
+                        break;
+
+                    case 6:
+                        commandName = "S";
+                        command = delegate()
+                        {
+                            _gameboy.TapStart();
+                            _gameboy.TapStart();
+                        };
                         break;
 
                     default:
