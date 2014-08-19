@@ -156,7 +156,7 @@ namespace XPlaysGameboy
         private void SendKey(int keyCode, int delayMultiplier = 1)
         {
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);
-            Thread.Sleep(5 * delayMultiplier);
+            Thread.Sleep(1 * delayMultiplier);
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(keyCode), IntPtr.Zero);
 
         }
