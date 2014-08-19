@@ -21,6 +21,6 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <TextBlock Grid.Row="1" Margin="10,5,10,10"  Grid.Column="0" FontSize="20"  Foreground="#FF000000"  Text="Next slowdown in ..."  Name="SlowMotionCountdown" />
+        <TextBlock FontFamily="Bold" Grid.Row="1" Margin="10,5,10,10"  Grid.Column="0" FontSize="20"  Foreground="#FF000000"  Text="Next slowdown in ..."  Name="SlowMotionCountdown" />
     </Grid>
 </Window>

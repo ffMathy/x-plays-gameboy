@@ -30,6 +30,9 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         private readonly GameboyEngine _gameboy;
         private readonly TwitchChatEngine _twitchChatEngine;
 
+        private const int SpeedyTime = 900;
+        private const int SlowTime = 60;
+
         private int _slowmotionCountdown;
         private int _lastCommandIndex;
 
@@ -44,7 +47,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
             WindowState = WindowState.Maximized;
 
-            _slowmotionCountdown = 300;
+            _slowmotionCountdown = SpeedyTime;
             if (Debugger.IsAttached)
             {
                 _slowmotionCountdown = 10;
@@ -85,7 +88,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                             if (int.TryParse(split[1], out amount))
                             {
                                 //amount can be between 2 and 15.
-                                amount = Math.Min(Math.Max(amount, 2), 15);
+                                amount = Math.Min(Math.Max(amount, 2), 25);
 
                                 _slowmotionRepeatRequest = new RepeatRequest()
                                 {
@@ -136,9 +139,9 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
                 _slowmotionCountdown -= 1;
 
-                if (_slowmotionCountdown < -30)
+                if (_slowmotionCountdown < -SlowTime)
                 {
-                    _slowmotionCountdown = 300;
+                    _slowmotionCountdown = SpeedyTime;
                 }
             }
         }
@@ -155,7 +158,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             while (true)
             {
 
-                var delay = 25;
+                var delay = 5;
                 if (_slowmotionCountdown < 0)
                 {
                     delay = 10000;
