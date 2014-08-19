@@ -252,8 +252,11 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                         commandName = "S";
                         command = delegate()
                         {
+                            Thread.Sleep(10);
                             _gameboy.TapStart();
+                            Thread.Sleep(100);
                             _gameboy.TapStart();
+                            Thread.Sleep(10);
                         };
                         break;
 
