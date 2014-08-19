@@ -22,6 +22,9 @@ namespace XPlaysGameboy
             get { return _engine ?? (_engine = new TwitchChatEngine()); }
         }
 
+        private IrcClient _client;
+        private IrcUserRegistrationInfo _registrationInformation;
+
         private TwitchChatEngine() { }
 
         /// <summary>
@@ -39,8 +42,28 @@ namespace XPlaysGameboy
             client.ChannelListReceived += client_ChannelListReceived;
             client.RawMessageReceived += client_RawMessageReceived;
 
-            client.Connect("irc.twitch.tv", 6667, false, new IrcUserRegistrationInfo() {NickName = twitchUsername, Password = twitchOAuthToken, UserName = twitchUsername, RealName = twitchUsername});
+            client.Disconnected += client_Disconnected;
 
+            _client = client;
+            _registrationInformation = new IrcUserRegistrationInfo()
+            {
+                NickName = twitchUsername,
+                Password = twitchOAuthToken,
+                UserName = twitchUsername,
+                RealName = twitchUsername
+            };
+
+            Connect();
+        }
+
+        private void Connect()
+        {
+            _client.Connect("irc.twitch.tv", 6667, false, _registrationInformation);
+        }
+
+        void client_Disconnected(object sender, EventArgs e)
+        {
+            Connect();
         }
 
         void client_ChannelListReceived(object sender, IrcChannelListReceivedEventArgs e)
