@@ -108,6 +108,7 @@ namespace XPlaysGameboy
             information.Arguments = "\"" + romLocation + "\" " +
                                     "-setting Speed=1 " +
                                     "-setting UndelayedSpeed=" + speedModeEmulationSpeed.ToString(new CultureInfo("en-US")) + " ";
+            information.WorkingDirectory = emulatorRoot;
 
             var process = Process.Start(information);
 

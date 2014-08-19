@@ -118,7 +118,10 @@ namespace XPlaysGameboy
 
         public void SendMessage(string message)
         {
-            _client.SendRawMessage("PRIVMSG #" + _client.LocalUser.UserName.ToLower() + " " + message);
+            if (_client.Channels.Any())
+            {
+                _client.LocalUser.SendMessage(_client.Channels[0], message);
+            }
         }
 
     }

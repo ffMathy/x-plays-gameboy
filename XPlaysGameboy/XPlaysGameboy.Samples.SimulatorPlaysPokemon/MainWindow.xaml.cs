@@ -97,65 +97,73 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             });
 
             var messageUpper = message.ToUpper();
-            if (messageUpper.Contains(" "))
+
+            var isChannelOwner = _channelOwners.Any(p => string.Equals(p.Trim(), username.Trim(), StringComparison.OrdinalIgnoreCase));
+            var split = messageUpper.Split(' ');
+            switch (split[0])
             {
-                var isChannelOwner = _channelOwners.Any(p => string.Equals(p.Trim(), username.Trim(), StringComparison.OrdinalIgnoreCase));
-                var split = messageUpper.Split(' ');
-                switch (split[0])
-                {
-                    case "REPEAT":
-                        if (_repeatRequest == null)
+                case "REPEAT":
+                    if (_repeatRequest == null && split.Length > 1)
+                    {
+                        int amount;
+                        if (int.TryParse(split[1], out amount))
                         {
-                            int amount;
-                            if (int.TryParse(split[1], out amount))
+                            //amount can be between 2 and 15.
+                            amount = Math.Min(Math.Max(amount, 2), 25);
+
+                            _repeatRequest = new RepeatRequest()
                             {
-                                //amount can be between 2 and 15.
-                                amount = Math.Min(Math.Max(amount, 2), 25);
-
-                                _repeatRequest = new RepeatRequest()
-                                {
-                                    Amount = amount,
-                                    RequestAuthor = username,
-                                    CommandIndex = _lastCommandIndex
-                                };
-                            }
+                                Amount = amount,
+                                RequestAuthor = username,
+                                CommandIndex = _lastCommandIndex
+                            };
                         }
-                        break;
+                    }
+                    break;
 
-                    //allows power-users to reposition the window.
-                    case "REPOSITION":
-                        if (isChannelOwner && split.Length > 2)
+                //allows power-users to reposition the window.
+                case "REPOSITION":
+                    if (isChannelOwner && split.Length > 2)
+                    {
+                        int x;
+                        int y;
+                        if (int.TryParse(split[1], out x) && int.TryParse(split[2], out y))
                         {
-                            int x;
-                            int y;
-                            if (int.TryParse(split[1], out x) && int.TryParse(split[2], out y))
+                            Dispatcher.Invoke(delegate()
                             {
-                                Dispatcher.Invoke(delegate()
-                                {
-                                    Left = x;
-                                    Top = y;
-                                });
-                            }
+                                Left = x;
+                                Top = y;
+                            });
                         }
-                        break;
+                    }
+                    break;
 
-                    case "MODESWITCH":
-                        if (_twitchChatEngine.IsOperator(username))
+                case "MODESWITCH":
+                    if (_twitchChatEngine.IsOperator(username) && split.Length > 1)
+                    {
+                        var mode = split[1].ToUpper();
+                        if (mode == "SLOW")
                         {
-                            var mode = split[1].ToUpper();
-                            if (mode == "SLOW")
-                            {
-                                _gameboy.StopSpeedMode();
-                                _slowmotionCountdown = 0;
-                            }
-                            else if(mode == "SPEED")
-                            {
-                                _gameboy.StartSpeedMode();
-                                _slowmotionCountdown = SpeedyTime;
-                            }
+                            _gameboy.StopSpeedMode();
+                            _slowmotionCountdown = 0;
                         }
-                        break;
-                }
+                        else if (mode == "SPEED")
+                        {
+                            _gameboy.StartSpeedMode();
+                            _slowmotionCountdown = SpeedyTime;
+                        }
+                    }
+                    break;
+
+                case "RESTART":
+                    if (isChannelOwner)
+                    {
+                        using (var myProcess = Process.GetCurrentProcess())
+                        {
+                            Process.Start(myProcess.ProcessName + ".exe");
+                        }
+                    }
+                    break;
             }
         }
 
@@ -340,7 +348,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 Log.ItemsSource = commandList;
 
                 var realTimeSpent = DateTime.Now.Subtract(_startTime);
-                var pokemonTimeSpent = new TimeSpan(realTimeSpent.Ticks*25);
+                var pokemonTimeSpent = new TimeSpan(realTimeSpent.Ticks * 25);
 
                 RealTimeSpent.Text = realTimeSpent.Days + "d " + realTimeSpent.Hours.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "h " + realTimeSpent.Minutes.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "m " + realTimeSpent.Seconds.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "s";
                 PokemonTimeSpent.Text = pokemonTimeSpent.Days + "d " + pokemonTimeSpent.Hours.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "h " + pokemonTimeSpent.Minutes.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "m " + pokemonTimeSpent.Seconds.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "s";
