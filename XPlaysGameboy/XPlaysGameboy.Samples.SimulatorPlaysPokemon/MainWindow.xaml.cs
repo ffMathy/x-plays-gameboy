@@ -113,7 +113,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             }
 
             //start the emulator with 5X normal speed.
-            await _gameboy.Start(romPath, GameboyArea, 10);
+            await _gameboy.Start(romPath, GameboyArea, 25);
 
             await Task.Delay(1000);
 
