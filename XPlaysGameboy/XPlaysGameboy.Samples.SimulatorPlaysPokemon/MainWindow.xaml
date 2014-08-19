@@ -6,6 +6,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -14,13 +15,45 @@
         <Border Margin="5" BorderBrush="#FF3399FF" BorderThickness="5">
             <Grid  Name="GameboyArea" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
         </Border>
-        <ItemsControl Grid.Row="0" Width="300" Name="Log" Grid.Column="1" Margin="0,5">
+        <ItemsControl Grid.Row="0" Width="50" Name="Log" Grid.Column="1" Margin="0,5">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock MinWidth="20" TextWrapping="Wrap" Text="{Binding}" FontSize="20" Foreground="#FF3399FF"  HorizontalAlignment="Left" TextAlignment="Center" VerticalAlignment="Center" Margin="5" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <TextBlock Grid.ColumnSpan="2" FontFamily="Bold" Grid.Row="1" Margin="10,5,10,10" TextWrapping="Wrap"  Grid.Column="0" FontSize="14"  Foreground="#FF3399FF"  Text="Next slowdown in ..."  Name="SlowMotionCountdown" />
+        <ItemsControl Width="250" Grid.Column="2" Grid.Row="0" Margin="0,20,20,5">
+            <ItemsControl Margin="0,5">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" FontWeight="Bold" Text="REAL TIME SPENT" />
+                <TextBlock Name="RealTimeSpent" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" Text="..." />
+            </ItemsControl>
+            <ItemsControl Margin="0,5">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" FontWeight="Bold" Text="POKÉMON TIME SPENT" />
+                <TextBlock Name="PokemonTimeSpent" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" Text="..." />
+            </ItemsControl>
+            <ItemsControl Margin="0,5">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" FontWeight="Bold" Text="LAST REPEAT" />
+                <TextBlock Name="LastRepeat" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" Text="..." />
+            </ItemsControl>
+            <ItemsControl Margin="0,20,0,0">
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" Opacity="0.5" FontWeight="Bold" Text="CHAT LOG" />
+                <ListBox HorizontalContentAlignment="Left" BorderThickness="0" Name="ChatLog">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Margin" Value="0,0,0,0" />
+                            <Setter Property="Width" Value="240" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Padding="0" Opacity="0.5" TextWrapping="Wrap" Name="LastRepeat" HorizontalAlignment="Left" TextAlignment="Left" VerticalAlignment="Center"  FontFamily="Segoe UI" Foreground="#FF3399FF">
+                                <Run FontWeight="ExtraLight" Text="{Binding Username}" /><Run Text=": " /><Run Text="{Binding Message}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ItemsControl>
+        </ItemsControl>
+        <TextBlock Grid.ColumnSpan="3" FontFamily="Bold" Grid.Row="1" Margin="10,5,10,10" TextWrapping="Wrap"  Grid.Column="0" FontSize="14"  Foreground="#FF3399FF"  Text="Loading ..."  Name="SlowMotionCountdown" />
     </Grid>
 </Window>

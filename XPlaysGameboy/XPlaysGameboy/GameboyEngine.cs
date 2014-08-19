@@ -29,12 +29,24 @@ namespace XPlaysGameboy
 
         private IntPtr _gameboyWindowHandle;
 
+        private bool _inSpeedMode;
+        public bool IsInSpeedMode { get { return _inSpeedMode; } }
+
         private GameboyEngine()
         {
-
+            _inSpeedMode = false;
         }
 
-        public async Task Start(string romLocation, FrameworkElement projectTo, double emulationSpeed = 1.0)
+        public string EmulatorDirectory
+        {
+            get
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "XPlaysGameboy", "Emulator");
+            }
+        }
+
+        public async Task Start(string romLocation, FrameworkElement projectTo, double speedModeEmulationSpeed = 1.0)
         {
             Window projectWindow = null;
 
@@ -79,7 +91,7 @@ namespace XPlaysGameboy
 
             await Task.Delay(1000);
 
-            var emulatorRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XPlaysGameboy", "Emulator");
+            var emulatorRoot = EmulatorDirectory;
             if (!Directory.Exists(emulatorRoot))
             {
                 Directory.CreateDirectory(emulatorRoot);
@@ -94,7 +106,8 @@ namespace XPlaysGameboy
 
             var information = new ProcessStartInfo(emulatorFilePath);
             information.Arguments = "\"" + romLocation + "\" " +
-                                    "-setting Speed=" + emulationSpeed.ToString(new CultureInfo("en-US")) + " ";
+                                    "-setting Speed=1 " +
+                                    "-setting UndelayedSpeed=" + speedModeEmulationSpeed.ToString(new CultureInfo("en-US")) + " ";
 
             var process = Process.Start(information);
 
@@ -124,8 +137,18 @@ namespace XPlaysGameboy
                 var projectionLocation = projectTo.PointToScreen(new Point(0, 0));
                 var projectionSize = new Size(projectTo.ActualWidth, projectTo.ActualHeight);
 
+                if (_inSpeedMode)
+                {
+                    StopSpeedMode();
+                }
+
                 NativeMethods.SetWindowPos(gameboyWindowHandle, new IntPtr(-1), (int)projectionLocation.X, (int)projectionLocation.Y,
                     (int)projectionSize.Width, (int)projectionSize.Height, NativeMethods.SetWindowPosFlags.SWP_NOACTIVATE);
+
+                if (_inSpeedMode)
+                {
+                    StartSpeedMode();
+                }
             };
 
             projectTo.SizeChanged += delegate
@@ -152,12 +175,46 @@ namespace XPlaysGameboy
                 }
                 else
                 {
+                    if (_inSpeedMode)
+                    {
+                        StopSpeedMode();
+                    }
+
                     NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.ShowNoActivate);
+
+                    if (_inSpeedMode)
+                    {
+                        StartSpeedMode();
+                    }
                 }
             };
             projectWindow.Activated += delegate
             {
+                if (_inSpeedMode)
+                {
+                    StopSpeedMode();
+                }
+
                 NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.ShowNoActivate);
+
+                if (_inSpeedMode)
+                {
+                    StartSpeedMode();
+                }
+            };
+            projectWindow.Deactivated += delegate
+            {
+                if (_inSpeedMode)
+                {
+                    StopSpeedMode();
+                }
+
+                NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.ShowNoActivate);
+
+                if (_inSpeedMode)
+                {
+                    StartSpeedMode();
+                }
             };
 
             resizeProjection();
@@ -166,6 +223,11 @@ namespace XPlaysGameboy
 
         private void SendKey(int keyCode, int delay = 5)
         {
+            if (!_inSpeedMode)
+            {
+                delay *= 25;
+            }
+
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);
             Thread.Sleep(delay);
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(keyCode), IntPtr.Zero);
@@ -214,17 +276,30 @@ namespace XPlaysGameboy
 
         public void SaveState()
         {
-            SendKey(0x71, 1000);
+            SendKey(0x71, 100);
         }
 
         public void LoadState()
         {
-            SendKey(0x73, 1000);
+            SendKey(0x73, 100);
         }
 
-        public void ToggleSpeedMode()
+        public void StartSpeedMode()
         {
-            SendKey(0x6B, 1000);
+            if (!_inSpeedMode)
+            {
+                _inSpeedMode = true;
+                NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(0x6B), IntPtr.Zero);
+            }
+        }
+
+        public void StopSpeedMode()
+        {
+            if (_inSpeedMode)
+            {
+                _inSpeedMode = false;
+                NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(0x6B), IntPtr.Zero);
+            }
         }
 
     }
