@@ -154,11 +154,13 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
             var lastTick = DateTime.UtcNow;
 
+            const int SmallDelay = 5;
+
             var commandList = new LinkedList<string>();
             while (true)
             {
 
-                var delay = 5;
+                var delay = SmallDelay;
                 if (_slowmotionCountdown < 0)
                 {
                     delay = 10000;
@@ -176,8 +178,8 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
                 frame++;
 
-                //every 100th frame (10 seconds), save progress.
-                if (frame == 1000)
+                //every 10 seconds, save progress.
+                if (frame == 10000 / SmallDelay)
                 {
                     _gameboy.SaveState();
                     frame = 0;
