@@ -36,7 +36,7 @@
                 <TextBlock Name="LastRepeat" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" Text="..." />
             </ItemsControl>
             <ItemsControl Margin="0,20,0,0">
-                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" Opacity="0.5" FontWeight="Bold" Text="CHAT LOG" />
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0" FontFamily="Segoe UI" Foreground="#FF3399FF" Opacity="0.75" FontWeight="Bold" Text="CHAT LOG" />
                 <ListBox HorizontalContentAlignment="Left" BorderThickness="0" Name="ChatLog">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
@@ -46,7 +46,7 @@
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Padding="0" Opacity="0.5" TextWrapping="Wrap" Name="LastRepeat" HorizontalAlignment="Left" TextAlignment="Left" VerticalAlignment="Center"  FontFamily="Segoe UI" Foreground="#FF3399FF">
+                            <TextBlock Padding="0" Opacity="0.75" TextWrapping="Wrap" Name="LastRepeat" HorizontalAlignment="Left" TextAlignment="Left" VerticalAlignment="Center"  FontFamily="Segoe UI" Foreground="#FF3399FF">
                                 <Run FontWeight="ExtraLight" Text="{Binding Username}" /><Run Text=": " /><Run Text="{Binding Message}" />
                             </TextBlock>
                         </DataTemplate>

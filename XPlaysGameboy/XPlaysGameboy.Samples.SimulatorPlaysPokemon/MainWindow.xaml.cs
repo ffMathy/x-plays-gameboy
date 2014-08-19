@@ -28,7 +28,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly string[] _powerUsers;
+        private readonly string[] _channelOwners;
 
         private readonly GameboyEngine _gameboy;
         private readonly TwitchChatEngine _twitchChatEngine;
@@ -55,7 +55,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             Top = 0;
 
             //assign two power users who can use special chat commands.
-            _powerUsers = new[] { "ffMathy", "RandomnessPlaysPokemon" };
+            _channelOwners = new[] { "ffMathy", "RandomnessPlaysPokemon" };
 
             _slowmotionCountdown = SpeedyTime;
 
@@ -99,7 +99,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             var messageUpper = message.ToUpper();
             if (messageUpper.Contains(" "))
             {
-                var isPowerUser = _powerUsers.Any(p => string.Equals(p.Trim(), username.Trim(), StringComparison.OrdinalIgnoreCase));
+                var isChannelOwner = _channelOwners.Any(p => string.Equals(p.Trim(), username.Trim(), StringComparison.OrdinalIgnoreCase));
                 var split = messageUpper.Split(' ');
                 switch (split[0])
                 {
@@ -124,7 +124,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
                     //allows power-users to reposition the window.
                     case "REPOSITION":
-                        if (isPowerUser && split.Length > 2)
+                        if (isChannelOwner && split.Length > 2)
                         {
                             int x;
                             int y;
@@ -140,7 +140,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                         break;
 
                     case "MODESWITCH":
-                        if (isPowerUser)
+                        if (_twitchChatEngine.IsOperator(username))
                         {
                             var mode = split[1].ToUpper();
                             if (mode == "SLOW")
