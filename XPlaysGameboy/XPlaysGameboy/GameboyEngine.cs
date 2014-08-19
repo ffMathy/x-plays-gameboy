@@ -53,6 +53,21 @@ namespace XPlaysGameboy
                 throw new ArgumentException("The projection element must be a child of a window.", "projectTo");
             }
 
+            using (var myProcess = Process.GetCurrentProcess())
+            {
+                foreach (var existingProcess in Process.GetProcessesByName(myProcess.ProcessName))
+                {
+                    using (existingProcess)
+                    {
+                        if (existingProcess.Id != myProcess.Id)
+                        {
+                            existingProcess.Kill();
+                            await Task.Delay(1000);
+                        }
+                    }
+                }
+            }
+
             foreach (var existingProcess in Process.GetProcessesByName("bgb"))
             {
                 using (existingProcess)
@@ -144,19 +159,15 @@ namespace XPlaysGameboy
             {
                 NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.ShowNoActivate);
             };
-            projectWindow.Deactivated += delegate
-            {
-                NativeMethods.ShowWindow(_gameboyWindowHandle, NativeMethods.WindowShowStyle.Hide);
-            };
 
             resizeProjection();
 
         }
 
-        private void SendKey(int keyCode, int delayMultiplier = 1)
+        private void SendKey(int keyCode, int delay = 5)
         {
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);
-            Thread.Sleep(1 * delayMultiplier);
+            Thread.Sleep(delay);
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x101, new IntPtr(keyCode), IntPtr.Zero);
 
         }
@@ -203,17 +214,17 @@ namespace XPlaysGameboy
 
         public void SaveState()
         {
-            SendKey(0x71, 10);
+            SendKey(0x71, 1000);
         }
 
         public void LoadState()
         {
-            SendKey(0x73, 10);
+            SendKey(0x73, 1000);
         }
 
         public void ToggleSpeedMode()
         {
-            SendKey(0x6B, 10);
+            SendKey(0x6B, 1000);
         }
 
     }

@@ -42,11 +42,6 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         {
             InitializeComponent();
 
-            WindowStyle = WindowStyle.None;
-            ResizeMode = ResizeMode.NoResize;
-
-            WindowState = WindowState.Maximized;
-
             _slowmotionCountdown = SpeedyTime;
             if (Debugger.IsAttached)
             {
@@ -112,7 +107,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 File.WriteAllBytes(romPath, FileResources.PokemonRed);
             }
 
-            //start the emulator with 5X normal speed.
+            //start the emulator with 20X normal speed.
             await _gameboy.Start(romPath, GameboyArea, 25);
 
             await Task.Delay(1000);
@@ -149,12 +144,15 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         private async void StartKeyPressLoop()
         {
 
+            //HACK: to keep this async.
+            await Task.Delay(1);
+
             var random = new Random((int)DateTime.UtcNow.Ticks);
             var frame = 0;
 
             var lastTick = DateTime.UtcNow;
 
-            const int SmallDelay = 5;
+            const int SmallDelay = 1;
 
             var commandList = new LinkedList<string>();
             while (true)
@@ -172,7 +170,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 }
 
                 var difference = (int)(DateTime.UtcNow - lastTick).TotalMilliseconds;
-                await Task.Delay(Math.Max(delay - difference, 1));
+                Thread.Sleep(Math.Max(delay - difference, 1));
 
                 lastTick = DateTime.UtcNow;
 
@@ -192,22 +190,22 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 switch (_lastCommandIndex)
                 {
                     case 0:
-                        commandName = "Right";
+                        commandName = "→";
                         command = _gameboy.TapRight;
                         break;
 
                     case 1:
-                        commandName = "Left";
+                        commandName = "←";
                         command = _gameboy.TapLeft;
                         break;
 
                     case 2:
-                        commandName = "Down";
+                        commandName = "↓";
                         command = _gameboy.TapDown;
                         break;
 
                     case 3:
-                        commandName = "Up";
+                        commandName = "↑";
                         command = _gameboy.TapUp;
                         break;
 
@@ -245,7 +243,10 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 for (var i = 0; i < repeat; i++)
                 {
                     command();
-                    await Task.Delay(100);
+                    if (i != 0)
+                    {
+                        Thread.Sleep(100);
+                    }
                 }
 
                 _slowmotionRepeatRequest = null;
