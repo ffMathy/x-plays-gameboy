@@ -161,8 +161,8 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 var delay = SmallDelay;
                 if (_slowmotionCountdown < 0)
                 {
-                    delay = 10000;
-                    SlowMotionCountdown.Text = "Slowdown mode! Write \"repeat <number>\" in the chat to repeat the keypress that occured when you wrote it, X amount of times.";
+                    delay = 3000;
+                    SlowMotionCountdown.Text = "Slowdown mode! Now you can use the \"repeat <number>\" command in the chat.";
                 }
                 else
                 {
