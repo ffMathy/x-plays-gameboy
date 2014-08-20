@@ -15,6 +15,9 @@ namespace XPlaysGameboy
         public delegate void MessageReceivedEventHandler(string username, string message);
         public event MessageReceivedEventHandler MessageReceived;
 
+        public delegate void UserJoinedEventHandler(string username);
+        public event UserJoinedEventHandler UserJoined;
+
         private static TwitchChatEngine _engine;
 
         public static TwitchChatEngine Instance
@@ -52,6 +55,7 @@ namespace XPlaysGameboy
             client.RawMessageReceived += client_RawMessageReceived;
             client.Disconnected += client_Disconnected;
             client.Error += client_Error;
+            client.ConnectFailed += client_ConnectFailed;
 
             _client = client;
             _registrationInformation = new IrcUserRegistrationInfo()
@@ -62,6 +66,11 @@ namespace XPlaysGameboy
                 RealName = twitchUsername
             };
 
+            Connect();
+        }
+
+        void client_ConnectFailed(object sender, IrcErrorEventArgs e)
+        {
             Connect();
         }
 
@@ -104,10 +113,10 @@ namespace XPlaysGameboy
             }
             else if (message.Command == "JOIN")
             {
-                SendMessage("Welcome to the stream, @" +
-                                      message.Source +
-                                      "!");
-                SendMessage("Be sure to read the description for a full list of commands and more details.");
+                if (UserJoined != null)
+                {
+                    UserJoined(message.Source.Name);
+                }
             }
             else if(message.Command == "MODE" && message.Parameters[1] == "+o")
             {

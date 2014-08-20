@@ -35,11 +35,14 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
         private const int SpeedyTime = 600;
         private const int SlowTime = 30;
+        private const int SpeedMultiplier = 50;
 
         private int _slowmotionCountdown;
         private int _lastCommandIndex;
 
         private DateTime _startTime;
+
+        private readonly DateTime _launchTime;
 
         private RepeatRequest _repeatRequest;
 
@@ -53,6 +56,8 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
 
             Left = 0;
             Top = 0;
+
+            _launchTime = DateTime.UtcNow;
 
             //assign two power users who can use special chat commands.
             _channelOwners = new[] { "ffMathy", "RandomnessPlaysPokemon" };
@@ -75,8 +80,19 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             }
 
             _twitchChatEngine.MessageReceived += _twitchChatEngine_MessageReceived;
+            _twitchChatEngine.UserJoined += _twitchChatEngine_UserJoined;
 
             Loaded += MainWindow_Loaded;
+        }
+
+        void _twitchChatEngine_UserJoined(string username)
+        {
+            if ((DateTime.UtcNow - _launchTime).TotalMinutes > 15)
+            {
+                _twitchChatEngine.SendMessage("Welcome to the stream, @" +
+                                      username +
+                                      "! Be sure to read the description for a full list of commands and more details.");
+            }
         }
 
         void _twitchChatEngine_MessageReceived(string username, string message)
@@ -177,9 +193,9 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             }
 
             //start the emulator with 20X normal speed.
-            await _gameboy.Start(romPath, GameboyArea, 15);
+            await _gameboy.Start(romPath, GameboyArea, SpeedMultiplier);
 
-            _startTime = File.GetCreationTime(Path.Combine(_gameboy.EmulatorDirectory, "bgb.exe"));
+            _startTime = File.GetLastWriteTime(Path.Combine(_gameboy.EmulatorDirectory, "bgb.exe"));
 
             await Task.Delay(5000);
 
@@ -200,6 +216,29 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
             //now that the game is running, start simulating random keypresses.
             StartKeyPressLoop();
             StartSlowMotionLoop();
+            StartBackupLoop();
+        }
+
+        private async void StartBackupLoop()
+        {
+            var offset = 0L;
+            while (true)
+            {
+                await Task.Delay(30000);
+                _gameboy.SaveState();
+                await Task.Delay(30000);
+
+                offset++;
+                if (offset%60 == 0)
+                {
+
+                    var backupPath = Path.Combine(_gameboy.DataDirectory, "Backup " + DateTime.UtcNow.Ticks);
+                    Directory.CreateDirectory(backupPath);
+
+                    _gameboy.PerformBackup(backupPath);
+
+                }
+            }
         }
 
         private async void StartSlowMotionLoop()
@@ -221,11 +260,11 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         {
 
             var random = new Random((int)DateTime.UtcNow.Ticks);
-            var frame = 0;
 
             var lastTick = DateTime.UtcNow;
+            var lastStart = DateTime.UtcNow;
 
-            const int SmallDelay = 1;
+            const int SmallDelay = 2;
 
             var commandList = new LinkedList<string>();
             while (true)
@@ -249,20 +288,6 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                     _gameboy.StartSpeedMode();
 
                     SlowMotionCountdown.Text = "Mode: Speed (Slowdown in: " + _slowmotionCountdown + " seconds)";
-                }
-
-                var difference = (int)(DateTime.UtcNow - lastTick).TotalMilliseconds;
-                await Task.Delay(Math.Max(delay - difference, 1));
-
-                lastTick = DateTime.UtcNow;
-
-                frame++;
-
-                //every 10 seconds, save progress.
-                if (frame == 10000 / SmallDelay)
-                {
-                    _gameboy.SaveState();
-                    frame = 0;
                 }
 
                 Action command;
@@ -314,24 +339,38 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                         break;
 
                     case 6:
-                        commandName = "S";
-                        command = delegate()
+                        if ((DateTime.UtcNow - lastStart).TotalSeconds > 10)
                         {
-                            Thread.Sleep(10);
-                            _gameboy.TapStart();
-                            Thread.Sleep(100);
-                            if (!_gameboy.IsInSpeedMode)
+                            lastStart = DateTime.UtcNow;
+
+                            commandName = "S";
+                            command = delegate()
                             {
-                                Thread.Sleep(1000);
-                            }
-                            _gameboy.TapStart();
-                            Thread.Sleep(10);
-                        };
+                                Thread.Sleep(10);
+                                _gameboy.TapStart();
+                                Thread.Sleep(100);
+                                if (!_gameboy.IsInSpeedMode)
+                                {
+                                    Thread.Sleep(1000);
+                                }
+                                _gameboy.TapStart();
+                                Thread.Sleep(10);
+                            };
+                        }
+                        else
+                        {
+                            continue;
+                        }
                         break;
 
                     default:
                         throw new InvalidOperationException();
                 }
+
+                var difference = (int)(DateTime.UtcNow - lastTick).TotalMilliseconds;
+                await Task.Delay(Math.Max(delay - difference, 1));
+
+                lastTick = DateTime.UtcNow;
 
                 if (_repeatRequest != null)
                 {
@@ -348,7 +387,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 Log.ItemsSource = commandList;
 
                 var realTimeSpent = DateTime.Now.Subtract(_startTime);
-                var pokemonTimeSpent = new TimeSpan(realTimeSpent.Ticks * 25);
+                var pokemonTimeSpent = new TimeSpan(realTimeSpent.Ticks * SpeedMultiplier);
 
                 RealTimeSpent.Text = realTimeSpent.Days + "d " + realTimeSpent.Hours.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "h " + realTimeSpent.Minutes.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "m " + realTimeSpent.Seconds.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "s";
                 PokemonTimeSpent.Text = pokemonTimeSpent.Days + "d " + pokemonTimeSpent.Hours.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "h " + pokemonTimeSpent.Minutes.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "m " + pokemonTimeSpent.Seconds.ToString(CultureInfo.InvariantCulture).PadLeft(2, '0') + "s";
@@ -359,7 +398,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                     command();
                     if (i != 0)
                     {
-                        await Task.Delay(100);
+                        await Task.Delay(10);
                         if (!_gameboy.IsInSpeedMode)
                         {
                             await Task.Delay(500);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,12 +38,33 @@ namespace XPlaysGameboy
             _inSpeedMode = false;
         }
 
+        public string DataDirectory
+        {
+            get
+            {
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "XPlaysGameboy", "Data");
+            }
+        }
+
         public string EmulatorDirectory
         {
             get
             {
                 return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "XPlaysGameboy", "Emulator");
+            }
+        }
+
+        public void PerformBackup(string location)
+        {
+            foreach (var file in Directory.GetFiles(EmulatorDirectory).Where(p =>
+            {
+                var extension = Path.GetExtension(p);
+                return extension == ".sn1" || extension == ".sav";
+            }))
+            {
+                File.Copy(file, Path.Combine(location, Path.GetFileName(file)));
             }
         }
 
@@ -107,6 +129,7 @@ namespace XPlaysGameboy
             var information = new ProcessStartInfo(emulatorFilePath);
             information.Arguments = "\"" + romLocation + "\" " +
                                     "-setting Speed=1 " +
+                                    "-setting SaveRamDir=\"" + emulatorRoot + "\" " +
                                     "-setting UndelayedSpeed=" + speedModeEmulationSpeed.ToString(new CultureInfo("en-US")) + " ";
             information.WorkingDirectory = emulatorRoot;
 
@@ -222,7 +245,7 @@ namespace XPlaysGameboy
 
         }
 
-        private void SendKey(int keyCode, int delay = 5)
+        private void SendKey(int keyCode, int delay = 1)
         {
             if (!_inSpeedMode)
             {
@@ -272,7 +295,7 @@ namespace XPlaysGameboy
 
         public void TapStart()
         {
-            SendKey(0xD);
+            SendKey(0xD, 3);
         }
 
         public void SaveState()
