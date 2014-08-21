@@ -249,7 +249,7 @@ namespace XPlaysGameboy
         {
             if (!_inSpeedMode)
             {
-                delay *= 25;
+                delay *= 100;
             }
 
             NativeMethods.SendMessage(_gameboyWindowHandle, 0x100, new IntPtr(keyCode), IntPtr.Zero);

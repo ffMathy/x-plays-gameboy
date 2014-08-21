@@ -34,7 +34,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         private readonly TwitchChatEngine _twitchChatEngine;
 
         private const int SpeedyTime = 600;
-        private const int SlowTime = 30;
+        private const int SlowTime = 60;
         private const int SpeedMultiplier = 50;
 
         private int _slowmotionCountdown;
@@ -277,7 +277,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                     //disable turbo.
                     _gameboy.StopSpeedMode();
 
-                    delay = 1000;
+                    delay = 1500;
 
                     SlowMotionCountdown.Text = "Mode: Slowdown (Speed in: " + (SlowTime + _slowmotionCountdown) + " seconds)";
                 }

@@ -35,6 +35,8 @@ namespace XPlaysGameboy
 
         private readonly HashSet<string> _operatorUsernames;
 
+        private DateTime _lastPongTime;
+
         private TwitchChatEngine()
         {
             _operatorUsernames = new HashSet<string>();
@@ -56,6 +58,7 @@ namespace XPlaysGameboy
             client.Disconnected += client_Disconnected;
             client.Error += client_Error;
             client.ConnectFailed += client_ConnectFailed;
+            client.PongReceived += client_PongReceived;
 
             _client = client;
             _registrationInformation = new IrcUserRegistrationInfo()
@@ -67,6 +70,52 @@ namespace XPlaysGameboy
             };
 
             Connect();
+
+            _lastPongTime = DateTime.UtcNow;
+
+            StartPingLoop();
+        }
+
+        void client_PongReceived(object sender, IrcPingOrPongReceivedEventArgs e)
+        {
+            _lastPongTime = DateTime.UtcNow;
+        }
+
+        private async void StartPingLoop()
+        {
+            while (!_client.IsConnected)
+            {
+                await Task.Delay(100);
+            }
+
+            while (true)
+            {
+
+                var failed = false;
+                try
+                {
+                    _client.Ping();
+                }
+                catch (Exception)
+                {
+                    failed = true;
+                }
+
+                await Task.Delay(10000);
+
+                if (failed || !_client.IsConnected || (DateTime.UtcNow - _lastPongTime).TotalSeconds > 30000)
+                {
+                    try
+                    {
+                        _client.Disconnect();
+                    }
+                    catch (Exception)
+                    {
+                        
+                    }
+                    Connect();
+                }
+            }
         }
 
         void client_ConnectFailed(object sender, IrcErrorEventArgs e)
@@ -84,6 +133,7 @@ namespace XPlaysGameboy
 
         private void Connect()
         {
+            _operatorUsernames.Clear();
             _client.Connect("irc.twitch.tv", 6667, false, _registrationInformation);
         }
 
@@ -120,8 +170,11 @@ namespace XPlaysGameboy
             }
             else if(message.Command == "MODE" && message.Parameters[1] == "+o")
             {
-                var operatorUsername = message.Parameters[2];
-                _operatorUsernames.Add(operatorUsername.ToLower());
+                var operatorUsername = message.Parameters[2].ToLower();
+                if (!_operatorUsernames.Contains(operatorUsername))
+                {
+                    _operatorUsernames.Add(operatorUsername);
+                }
             }
         }
 
