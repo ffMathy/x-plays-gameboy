@@ -55,10 +55,12 @@ namespace XPlaysGameboy
 
             client.Connected += client_Connected;
             client.RawMessageReceived += client_RawMessageReceived;
-            client.Disconnected += client_Disconnected;
             client.Error += client_Error;
             client.ConnectFailed += client_ConnectFailed;
             client.PongReceived += client_PongReceived;
+            client.ServerBounce += client_ServerBounce;
+            client.ProtocolError += client_ProtocolError;
+            client.ErrorMessageReceived += client_ErrorMessageReceived;
 
             _client = client;
             _registrationInformation = new IrcUserRegistrationInfo()
@@ -74,6 +76,33 @@ namespace XPlaysGameboy
             _lastPongTime = DateTime.UtcNow;
 
             StartPingLoop();
+        }
+
+        void client_ErrorMessageReceived(object sender, IrcErrorMessageEventArgs e)
+        {
+            Reconnect();
+        }
+
+        private async void Reconnect(int delay = 1)
+        {
+            Disconnect();
+            await Task.Delay(delay);
+            Connect();
+        }
+
+        private void Disconnect()
+        {
+            _client.Disconnect();
+        }
+
+        void client_ProtocolError(object sender, IrcProtocolErrorEventArgs e)
+        {
+            Reconnect();
+        }
+
+        void client_ServerBounce(object sender, IrcServerInfoEventArgs e)
+        {
+            Reconnect();
         }
 
         void client_PongReceived(object sender, IrcPingOrPongReceivedEventArgs e)
@@ -103,48 +132,37 @@ namespace XPlaysGameboy
 
                 await Task.Delay(10000);
 
-                if (failed || !_client.IsConnected || (DateTime.UtcNow - _lastPongTime).TotalSeconds > 30000)
+                if (failed || !_client.IsConnected || (DateTime.UtcNow - _lastPongTime).TotalSeconds > 60000)
                 {
-                    try
-                    {
-                        _client.Disconnect();
-                    }
-                    catch (Exception)
-                    {
-                        
-                    }
+                    _client.Disconnect();
                     Connect();
                 }
             }
         }
 
-        void client_ConnectFailed(object sender, IrcErrorEventArgs e)
+        async void client_ConnectFailed(object sender, IrcErrorEventArgs e)
         {
+            await Task.Delay(1000);
             Connect();
         }
 
         void client_Error(object sender, IrcErrorEventArgs e)
         {
-            if (!_client.IsConnected)
-            {
-                Connect();
-            }
+            Reconnect();
         }
 
         private void Connect()
         {
-            _operatorUsernames.Clear();
-            _client.Connect("irc.twitch.tv", 6667, false, _registrationInformation);
-        }
-
-        void client_Disconnected(object sender, EventArgs e)
-        {
-            Connect();
+            if (!_client.IsConnected)
+            {
+                _operatorUsernames.Clear();
+                _client.Connect("irc.twitch.tv", 6667, false, _registrationInformation);
+            }
         }
 
         void client_Connected(object sender, EventArgs e)
         {
-            var client = (IrcClient) sender;
+            var client = (IrcClient)sender;
             client.SendRawMessage("join #" + client.LocalUser.UserName.ToLower());
         }
 
@@ -168,7 +186,7 @@ namespace XPlaysGameboy
                     UserJoined(message.Source.Name);
                 }
             }
-            else if(message.Command == "MODE" && message.Parameters[1] == "+o")
+            else if (message.Command == "MODE" && message.Parameters[1] == "+o")
             {
                 var operatorUsername = message.Parameters[2].ToLower();
                 if (!_operatorUsernames.Contains(operatorUsername))

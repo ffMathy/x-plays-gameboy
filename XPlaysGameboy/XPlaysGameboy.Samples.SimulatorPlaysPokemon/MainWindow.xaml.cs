@@ -229,7 +229,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 await Task.Delay(30000);
 
                 offset++;
-                if (offset%60 == 0)
+                if (offset % 60 == 0)
                 {
 
                     var backupPath = Path.Combine(_gameboy.DataDirectory, "Backup " + DateTime.UtcNow.Ticks);
@@ -293,7 +293,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                 Action command;
 
                 string commandName;
-                _lastCommandIndex = _repeatRequest == null ? Math.Min(random.Next(0, 19), 18) : _repeatRequest.CommandIndex;
+                _lastCommandIndex = _repeatRequest == null ? Math.Min(random.Next(0, 22), 21) : _repeatRequest.CommandIndex;
                 switch (_lastCommandIndex)
                 {
                     case 0:
@@ -343,7 +343,7 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                         {
                             lastStart = DateTime.UtcNow;
 
-                            commandName = "S";
+                            commandName = "ST";
                             command = delegate()
                             {
                                 Thread.Sleep(10);
@@ -361,6 +361,13 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
                         {
                             continue;
                         }
+                        break;
+
+                    case 19:
+                    case 20:
+                    case 21:
+                        commandName = "SE";
+                        command = _gameboy.TapSelect;
                         break;
 
                     default:
