@@ -186,10 +186,10 @@ namespace XPlaysGameboy.Samples.SimulatorPlaysPokemon
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             //write the pokemon red ROM to the disk.
-            var romPath = Path.Combine(Environment.CurrentDirectory, "PokemonRed.gb");
+            var romPath = Path.Combine(Environment.CurrentDirectory, "PokemonCrystal.gba");
             if (!File.Exists(romPath))
             {
-                File.WriteAllBytes(romPath, FileResources.PokemonRed);
+                File.WriteAllBytes(romPath, FileResources.PokemonCrystal);
             }
 
             //start the emulator with 20X normal speed.
